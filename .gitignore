@@ -1,7 +1,11 @@
 # Ignore IDE and OS-specific files
 .vscode/
+.vs/
 .idea/
 .DS_Store
+
+
+
 
 # Ignore dependencies and build artifacts
 node_modules/
