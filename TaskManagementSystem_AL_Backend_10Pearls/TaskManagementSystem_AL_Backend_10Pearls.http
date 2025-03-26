@@ -1,0 +1,6 @@
+@TaskManagementSystem_AL_Backend_10Pearls_HostAddress = http://localhost:5177
+
+GET {{TaskManagementSystem_AL_Backend_10Pearls_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
