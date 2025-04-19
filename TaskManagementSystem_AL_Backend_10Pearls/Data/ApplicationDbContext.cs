@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem_AL_Backend_10Pearls.Models;
+using TaskManagementSystem_AL_Backend_10Pearls.Utilities;
 
 namespace TaskManagementSystem_AL_Backend_10Pearls.Data
 {
@@ -16,10 +17,33 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            //// Seed initial roles
+            //modelBuilder.Entity<User>()
+            //.Property(u => u.CreatedOn)
+            //.HasDefaultValueSql("GETUTCDATE()");
+
+
+            // Seed initial roles
             //modelBuilder.Entity<Role>().HasData(
             //    new Role { RoleId = 1, RoleName = "Admin", IsActive = true },
             //    new Role { RoleId = 2, RoleName = "User", IsActive = true }
+            //);
+
+            // Seed admin user with hashed password
+            //var password = "admin"; // Example password for the admin user
+            //var (salt, hash) = PasswordHasher.HashPassword(password);
+
+            //// Seed admin user with hardcoded password hash and salt
+            //modelBuilder.Entity<User>().HasData(
+            //    new User
+            //    {
+            //        UserId = 1,
+            //        Email = "admin@example.com",
+            //        Password = "1pg2JnaWFax14kSpsJeUyJHFU8Sf33HEurPKzokeN7M=", // Precomputed hash of 'admin' password
+            //        Salt = "B3WGC5bGcxD6f/pPslbXbQ==",     // Precomputed salt
+            //        RoleId = 1, // Admin role
+            //        IsActive = true,
+            //        CreatedOn = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc) // Hardcoded
+            //    }
             //);
 
             //// Seed task statuses
@@ -28,5 +52,6 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Data
             //    new Models.TaskStatus { TaskStatusId = 2, Status = "Completed", IsActive = true }
             //);
         }
+
     }
 }
