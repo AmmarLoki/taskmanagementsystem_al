@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagementSystem_AL_Backend_10Pearls.Data;
 
@@ -11,9 +12,11 @@ using TaskManagementSystem_AL_Backend_10Pearls.Data;
 namespace TaskManagementSystem_AL_Backend_10Pearls.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250327122948_AddTaskAssignmentPriorityCategory")]
+    partial class AddTaskAssignmentPriorityCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,7 +45,7 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Migrations
 
                     b.HasKey("RoleId");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("TaskManagementSystem_AL_Backend_10Pearls.Models.Task", b =>
@@ -91,7 +94,7 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Migrations
 
                     b.HasIndex("TaskStatusId");
 
-                    b.ToTable("Tasks", (string)null);
+                    b.ToTable("Tasks");
                 });
 
             modelBuilder.Entity("TaskManagementSystem_AL_Backend_10Pearls.Models.TaskStatus", b =>
@@ -114,7 +117,7 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Migrations
 
                     b.HasKey("TaskStatusId");
 
-                    b.ToTable("TaskStatuses", (string)null);
+                    b.ToTable("TaskStatuses");
                 });
 
             modelBuilder.Entity("TaskManagementSystem_AL_Backend_10Pearls.Models.User", b =>
@@ -150,7 +153,7 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("TaskManagementSystem_AL_Backend_10Pearls.Models.Task", b =>
