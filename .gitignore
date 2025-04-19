@@ -74,6 +74,6 @@ TestResults/
 *.orig
 .env
 
-# Optional: Uncomment to ignore global config & tools
-# .editorconfig
-# .globalconfig.json
+# Ignore ReSharper files
+_ReSharper*/
+*.DotSettings
