@@ -1,57 +1,79 @@
-# Ignore Visual Studio and .NET build files
+# Build results
 bin/
 obj/
 out/
-*.exe
 *.dll
+*.exe
+*.app
+*.so
+*.dylib
 *.pdb
-*.log
 *.cache
-
-# Ignore user-specific files
-.vscode/
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
-
-# Ignore build artifacts
-*.build.cs
-*.csproj.user
-*.pidb
-*.sdf
 *.dbmdl
+*.log
+*.logs/
+*.pid
+*.tlog
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
 *.psess
 *.vsp
-*.pyc
-*.pyo
+*.ncb
+*.sdf
+*.suo
+*.v11.suo
 
-# Ignore dependency directories
+# VS Code and Visual Studio
+.vscode/
+.vs/
+.idea/
+*.DotSettings
+*.DotSettings.user
+
+# Rider / ReSharper
+_ReSharper*/
+*.DotSettings
+
+# Dependency directories
 packages/
 node_modules/
 
-# Ignore configuration files
-appsettings.json
-appsettings.Development.json
-
-# Ignore IDE and tooling files
-.vs/
-.idea/
-*.tlog
-*.log
-*.ncb
-
-# Ignore publish and deploy files
+# Publish output
 publish/
 wwwroot/
 
-# Ignore secrets
+# Configs (optional to ignore)
+appsettings.Development.json
+appsettings.Staging.json
+appsettings.Production.json
 secrets.json
 
-# Ignore Rider IDE files
-*.DotSettings.user
-.idea/
+# Others
+TestResults/
+*.coverage
+*.coveragexml
 
-# Ignore ReSharper files
-_ReSharper*/
-*.DotSettings
+# JetBrains Rider & related
+.idea/
+*.sln.iml
+
+# Backup & temporary files
+*.bak
+*.tmp
+*.swp
+*~
+
+# OSX/Linux
+.DS_Store
+*.swp
+*.lock
+*.orig
+.env
+
+# Optional: Uncomment to ignore global config & tools
+# .editorconfig
+# .globalconfig.json
