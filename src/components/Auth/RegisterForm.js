@@ -1,92 +1,101 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { register } from "../../services/authservice";
 import {
   Container,
   Box,
+  Avatar,
   Typography,
   TextField,
   Button,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Alert
+  Alert,
+  Paper,
+  Link
 } from "@mui/material";
+import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 
 const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [roleId, setRoleId] = useState("2"); // Default to "User"
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await register(email, password, parseInt(roleId));
+      const roleId = 2; // fixed User role
+      await register(email, password, roleId);
       navigate("/login");
     } catch (err) {
-      setError(err.response ? err.response.data : "Registration failed");
+      setError(err.response?.data || "Registration failed");
     }
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box 
-        sx={{ 
-          marginTop: 8, 
-          display: "flex", 
-          flexDirection: "column", 
-          alignItems: "center" 
-        }}
-      >
-        <Typography component="h1" variant="h5">
-          Register
-        </Typography>
-        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3, width: "100%" }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Email Address"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <FormControl fullWidth margin="normal" sx={{ mt: 2 }}>
-            <InputLabel id="role-label">Role</InputLabel>
-            <Select
-              labelId="role-label"
-              value={roleId}
-              label="Role"
-              onChange={(e) => setRoleId(e.target.value)}
-            >
-              <MenuItem value="1">Admin</MenuItem>
-              <MenuItem value="2">User</MenuItem>
-            </Select>
-          </FormControl>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3 }}
-          >
-            Register
-          </Button>
-        </Box>
-      </Box>
-    </Container>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(-45deg, #23a6d5, #23d5ab, #ee7752, #e73c7e)",
+        backgroundSize: "400% 400%",
+        animation: "gradientBG 15s ease infinite",
+        "@keyframes gradientBG": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" }
+        }
+      }}
+    >
+      <Container maxWidth="xs">
+        <Paper elevation={6} sx={{ p: 4, borderRadius: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <Avatar sx={{ bgcolor: "secondary.main", mb: 1 }}>
+              <PersonAddOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">Sign Up</Typography>
+            {error && <Alert severity="error" sx={{ width: "100%", mt: 2 }}>{error}</Alert>}
+            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3, width: "100%" }}>
+              <TextField
+                fullWidth
+                required
+                label="Email Address"
+                type="email"
+                margin="normal"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
+              <TextField
+                fullWidth
+                required
+                label="Password"
+                type="password"
+                margin="normal"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Register
+              </Button>
+              <Box sx={{ mt: 2, textAlign: "center" }}>
+                <Typography variant="body2">
+                  Already have an account?{" "}
+                  <Link component={RouterLink} to="/login" underline="hover">
+                    Sign In
+                  </Link>
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 
