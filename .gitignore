@@ -1,12 +1,84 @@
-# Ignore IDE and OS-specific files
+# Build results
+bin/
+obj/
+out/
+Logs/
+*.dll
+*.exe
+*.app
+*.so
+*.dylib
+*.pdb
+*.cache
+*.dbmdl
+*.log
+*.Logs/
+*.pid
+*.tlog
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.psess
+*.vsp
+*.ncb
+*.sdf
+*.suo
+*.v11.suo
+
+# VS Code and Visual Studio
 .vscode/
 .vs/
 .idea/
+*.DotSettings
+*.DotSettings.user
+
+# Rider / ReSharper
+_ReSharper*/
+*.DotSettings
+
+# Dependency directories
+packages/
+node_modules/
+
+# Publish output
+publish/
+wwwroot/
+
+# Configs (optional to ignore)
+appsettings.Development.json
+appsettings.Staging.json
+appsettings.Production.json
+appsettings.json
+secrets.json
+
+# Others
+TestResults/
+*.coverage
+*.coveragexml
+
+# JetBrains Rider & related
+.idea/
+*.sln.iml
+
+# Backup & temporary files
+*.bak
+*.tmp
+*.swp
+*~
+
+# OSX/Linux
 .DS_Store
+*.swp
+*.lock
+*.orig
+.env
 
-
-
-
+# Ignore ReSharper files
+_ReSharper*/
+*.DotSettings
 # Ignore dependencies and build artifacts
 node_modules/
 dist/
