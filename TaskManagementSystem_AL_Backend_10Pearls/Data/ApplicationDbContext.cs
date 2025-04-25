@@ -48,8 +48,10 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Data
 
             //// Seed task statuses
             //modelBuilder.Entity<Models.TaskStatus>().HasData(
-            //    new Models.TaskStatus { TaskStatusId = 1, Status = "Pending", IsActive = true },
-            //    new Models.TaskStatus { TaskStatusId = 2, Status = "Completed", IsActive = true }
+            //    new Models.TaskStatus { TaskStatusId = 1, Status = "Pending", IsActive = true , CreatedOn = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+            //    new Models.TaskStatus { TaskStatusId = 2, Status = "Completed", IsActive = true , CreatedOn = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
+            //    new Models.TaskStatus { TaskStatusId = 3, Status = "InProgress", IsActive = true , CreatedOn = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)},
+
             //);
         }
 

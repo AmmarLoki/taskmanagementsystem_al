@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using TaskManagementSystem_AL_Backend_10Pearls.Data;
 using TaskManagementSystem_AL_Backend_10Pearls.Models;
+using TaskManagementSystem_AL_Backend_10Pearls.Utilities;
 
 namespace TaskManagementSystem_AL_Backend_10Pearls.Controllers
 {
@@ -18,38 +20,139 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<TaskController> _logger;
+        private readonly IHubContext<TaskHub> _hubContext;
 
-        public TaskController(ApplicationDbContext context, ILogger<TaskController> logger)
+
+        public TaskController(ApplicationDbContext context, ILogger<TaskController> logger, IHubContext<TaskHub> hubContext)
         {
             _context = context;
             _logger = logger;
+            _hubContext = hubContext;
         }
 
-        // GET: api/task
+        //// GET: api/task
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasks()
+        //{
+        //    // Retrieve the current user's ID from the claims
+        //    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        //    if (userIdClaim == null)
+        //    {
+        //        _logger.LogWarning("GetTasks: Unauthorized access attempt.");
+        //        return Unauthorized();
+        //    }
+        //    var userId = int.Parse(userIdClaim.Value);
+        //    _logger.LogInformation("GetTasks: Fetching tasks for UserId {UserId}", userId);
+
+        //    // Fetch tasks where the user is either the creator or the assignee
+        //    var tasks = await _context.Tasks
+        //        .Include(t => t.TaskStatus)
+        //        .Include(t => t.CreatedBy)
+        //        .Include(t => t.AssignedTo)
+        //        .Where(t => t.CreatedById == userId || t.AssignedToId == userId)
+        //        .ToListAsync();
+
+        //    _logger.LogInformation("GetTasks: Retrieved {TaskCount} tasks for UserId {UserId}", tasks.Count, userId);
+        //    return Ok(tasks);
+        //}
+
+        // GET: api/task?search=foo&statusId=1
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasks()
+        public async Task<ActionResult<IEnumerable<Models.Task>>> GetTasks(
+            [FromQuery] string search = null,
+            [FromQuery] int? statusId = null)
         {
-            // Retrieve the current user's ID from the claims
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                _logger.LogWarning("GetTasks: Unauthorized access attempt.");
-                return Unauthorized();
-            }
-            var userId = int.Parse(userIdClaim.Value);
-            _logger.LogInformation("GetTasks: Fetching tasks for UserId {UserId}", userId);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
-            // Fetch tasks where the user is either the creator or the assignee
-            var tasks = await _context.Tasks
+            var query = _context.Tasks
                 .Include(t => t.TaskStatus)
-                .Include(t => t.CreatedBy)
                 .Include(t => t.AssignedTo)
+                .Include(t => t.CreatedBy)
                 .Where(t => t.CreatedById == userId || t.AssignedToId == userId)
-                .ToListAsync();
+                .AsQueryable();
 
-            _logger.LogInformation("GetTasks: Retrieved {TaskCount} tasks for UserId {UserId}", tasks.Count, userId);
+            if (!string.IsNullOrWhiteSpace(search))
+                query = query.Where(t => t.TaskName.Contains(search));
+
+            if (statusId.HasValue)
+                query = query.Where(t => t.TaskStatusId == statusId.Value);
+
+            var tasks = await query.ToListAsync();
             return Ok(tasks);
         }
+
+
+        // GET: api/task/export
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportTasks(
+            [FromQuery] string search = null,
+            [FromQuery] int? statusId = null)
+        {
+            // reuse filtering logic
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var query = _context.Tasks
+                .Include(t => t.TaskStatus)
+                .Include(t => t.AssignedTo)
+                .Include(t => t.CreatedBy)
+                .Where(t => t.CreatedById == userId || t.AssignedToId == userId)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+                query = query.Where(t => t.TaskName.Contains(search));
+            if (statusId.HasValue)
+                query = query.Where(t => t.TaskStatusId == statusId.Value);
+
+            var tasks = await query.ToListAsync();
+
+            var csv = new StringBuilder();
+            csv.AppendLine("TaskId,TaskName,Status,AssignedTo,Priority,Category,CreatedOn");
+            foreach (var t in tasks)
+            {
+                var assigned = t.AssignedTo?.Email ?? "";
+                csv.AppendLine($"{t.TaskId},\"{t.TaskName}\",{t.TaskStatus.Status},\"{assigned}\",{t.Priority},{t.Category},{t.CreatedOn:O}");
+            }
+
+            var bytes = Encoding.UTF8.GetBytes(csv.ToString());
+            return File(bytes, "text/csv", "tasks.csv");
+        }
+
+        // POST: api/task/import
+        [HttpPost("import")]
+        public async Task<IActionResult> ImportTasks(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            using var reader = new StreamReader(file.OpenReadStream());
+            string line;
+            var imported = new List<Models.Task>();
+            // skip header
+            await reader.ReadLineAsync();
+            while ((line = await reader.ReadLineAsync()) != null)
+            {
+                var parts = line.Split(',');
+                if (parts.Length < 7) continue;
+                var task = new Models.Task
+                {
+                    TaskName = parts[1].Trim('"'),
+                    TaskStatusId = await _context.TaskStatuses
+                        .Where(s => s.Status == parts[2]).Select(s => s.TaskStatusId)
+                        .FirstOrDefaultAsync(),
+                    AssignedToId = null, // skip assignment on import
+                    Priority = parts[4],
+                    Category = parts[5],
+                    CreatedById = userId,
+                    CreatedOn = System.DateTime.UtcNow
+                };
+                _context.Tasks.Add(task);
+                imported.Add(task);
+            }
+            await _context.SaveChangesAsync();
+            await _hubContext.Clients.All.SendAsync("TasksImported", imported.Count);
+            return Ok(new { ImportedCount = imported.Count });
+        }
+
 
         // GET: api/task/{id}
         [HttpGet("{id}")]
@@ -110,6 +213,7 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Controllers
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("CreateTask: Task created with TaskId {TaskId} by UserId {UserId}", task.TaskId, userId);
+            await _hubContext.Clients.All.SendAsync("TaskCreated", task);
             return CreatedAtAction(nameof(GetTask), new { id = task.TaskId }, task);
         }
 
@@ -139,6 +243,7 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Controllers
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("UpdateTask: Task with TaskId {TaskId} updated successfully.", id);
+            await _hubContext.Clients.All.SendAsync("TaskUpdated", task);
             return NoContent();
         }
 
@@ -159,6 +264,7 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Controllers
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("DeleteTask: Task with TaskId {TaskId} deleted successfully.", id);
+            await _hubContext.Clients.All.SendAsync("TaskDeleted", id);
             return NoContent();
         }
 
