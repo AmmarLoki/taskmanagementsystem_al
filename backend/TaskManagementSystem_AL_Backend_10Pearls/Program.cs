@@ -5,6 +5,9 @@ using System.Text;
 using TaskManagementSystem_AL_Backend_10Pearls.Data;
 using TaskManagementSystem_AL_Backend_10Pearls.Utilities;
 using Serilog;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +76,34 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        // Get exception details
+        var feature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var ex = feature?.Error;
+
+        // Log it (you already have ILogger injected elsewhere)
+        // _logger.LogError(ex, "Unhandled exception");
+
+        // Return a ProblemDetails payload
+        var problem = new ProblemDetails
+        {
+            Title = "An unexpected error occurred.",
+            Status = StatusCodes.Status500InternalServerError,
+            Detail = ex?.Message,    // or omit in production
+            Instance = context.Request.Path
+        };
+
+        var json = JsonSerializer.Serialize(problem);
+        await context.Response.WriteAsync(json);
+    });
+});
 
 app.UseHttpsRedirection();
 

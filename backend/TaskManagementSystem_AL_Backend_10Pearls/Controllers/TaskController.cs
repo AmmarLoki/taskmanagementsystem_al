@@ -68,8 +68,15 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Controllers
                 .Include(t => t.TaskStatus)
                 .Include(t => t.AssignedTo)
                 .Include(t => t.CreatedBy)
-                .Where(t => t.CreatedById == userId || t.AssignedToId == userId)
+                
                 .AsQueryable();
+
+            if (!User.IsInRole("Admin"))
+            {
+                query = query.Where(t =>
+                    t.CreatedById == userId ||
+                    t.AssignedToId == userId);
+            }
 
             if (!string.IsNullOrWhiteSpace(search))
                 query = query.Where(t => t.TaskName.Contains(search));
@@ -233,7 +240,6 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Controllers
             // Update properties
             task.TaskName = model.TaskName;
             task.TaskStatusId = model.TaskStatusId;
-            task.CreatedById = model.CreatedById;
             task.AssignedToId = model.AssignedToId;
             task.Priority = model.Priority;
             task.Category = model.Category;
@@ -386,11 +392,5 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Controllers
 
             return Ok(userTaskCountsDto);
         }
-
-
-
-
     }
-
-
 }
