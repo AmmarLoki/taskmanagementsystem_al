@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getTaskById } from "../services/taskservice";
+import { getTaskById , updateTask} from "../services/taskservice";
 import { Container, Typography, Button, Box } from "@mui/material";
 import TaskForm from "../components/Task/TaskForm";
 
@@ -16,6 +16,11 @@ const TaskDetailpage = () => {
     };
     fetchTask();
   }, [taskId]);
+
+  const handleUpdate = async updatedValues => {
+    await updateTask(task.taskId, updatedValues);
+    navigate("/tasks");
+  };
 
   if (!task) return <Typography>Loading...</Typography>;
 
@@ -38,21 +43,16 @@ const TaskDetailpage = () => {
 
       <TaskForm
         initialData={{
-          taskName: task.taskName,
-          taskStatusId: task.taskStatusId,
-          createdById: task.createdById,
-          assignedToId: task.assignedToId,
-          priority: task.priority,
-          category: task.category,
-          taskCompletionDate: task.taskCompletionDate
-            ? task.taskCompletionDate.split("T")[0]
-            : "",
-        }}
-        onSubmit={(updatedTask) => {
-          // You can call updateTask service here
-          console.log("Updated task:", updatedTask);
-        }}
-      />
+        taskName: task.taskName,
+        taskStatusId: task.taskStatusId,
+        assignedToId: task.assignedToId,
+        priority: task.priority,
+        category: task.category,
+        taskCompletionDate: task.taskCompletionDate?.split("T")[0] || ""
+      }}
+      onSubmit={handleUpdate}
+    />
+      
     </Container>
   );
 };

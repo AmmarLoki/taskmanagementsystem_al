@@ -171,6 +171,9 @@ import {
   exportTasks,
   importTasks
 } from "../services/taskservice";
+import { getuserinfo } from "../services/authservice";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
 
@@ -180,6 +183,8 @@ const TaskListPage = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [importFile, setImportFile]   = useState(null);
   const [uploadPct, setUploadPct]     = useState(0);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     const data = await getTasks(search, statusFilter);
@@ -207,6 +212,44 @@ const TaskListPage = () => {
     setImportFile(null);
     fetchData();
   };
+
+  useEffect(() => {
+      (async () => {
+        try {
+          const profile = await getuserinfo();
+          // Extract roleName from the role object
+          const roleName =  profile.role;
+          setUser({ ...profile, roleName });
+        } catch {
+          navigate("/login");
+        }
+      })();
+    }, [navigate]);
+
+    if (!user) {
+        return (
+          <Box
+            sx={{
+              display: "flex",
+              minHeight: "100vh",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "linear-gradient(-45deg, #23d5ab, #ee7752, #e73c7e, #23a6d5)",
+              backgroundSize: "400% 400%",
+              animation: "gradientBG 15s ease infinite",
+              "@keyframes gradientBG": {
+                "0%": { backgroundPosition: "0% 50%" },
+                "50%": { backgroundPosition: "100% 50%" },
+                "100%": { backgroundPosition: "0% 50%" }
+              }
+            }}
+          >
+            <Typography variant="h6" color="white">Loading...</Typography>
+          </Box>
+        );
+      }
+    
+      const isAdmin = user.role?.toLowerCase() === "admin";
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -245,6 +288,16 @@ const TaskListPage = () => {
             <ListItemText primary="Tasks" />
           </ListItemButton>
         </ListItem>
+
+        {/* Only show Dashboard link if the user is an admin */}
+        {isAdmin && (
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/dashboard">
+              <ListItemIcon><DashboardIcon /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+        )}
       </List>
 
       {/* Push Profile button to the bottom */}

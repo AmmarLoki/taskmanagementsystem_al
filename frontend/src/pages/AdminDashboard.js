@@ -72,9 +72,11 @@ import {
   Grid,
   Paper,
   Toolbar,
+  
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import TaskCountCard from "../components/Task/TaskCountCard";
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
@@ -148,6 +150,12 @@ export default function AdminDashboard() {
             <ListItemButton component={Link} to="/dashboard">
               <ListItemIcon><DashboardIcon /></ListItemIcon>
               <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/tasks">
+            <ListItemIcon><AssignmentIcon /></ListItemIcon>
+            <ListItemText primary="Tasks" />
             </ListItemButton>
           </ListItem>
         </List>
