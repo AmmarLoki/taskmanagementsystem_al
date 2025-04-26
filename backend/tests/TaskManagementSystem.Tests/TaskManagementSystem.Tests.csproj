@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- Match your API's target framework -->
+		<TargetFramework>net8.0</TargetFramework>
+
+		<!-- Prevent duplicate AssemblyInfo generation -->
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+		<!-- Disable implicit usings so we explicitly import xUnit, EF, etc. -->
+		<ImplicitUsings>disable</ImplicitUsings>
+
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- xUnit and test runner -->
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+		<PackageReference Include="xunit" Version="2.*" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.*">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+
+		<!-- EF Core In-Memory for DbContext tests -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.*" />
+
+		<!-- Moq for mocking ILogger, IHubContext, etc. -->
+		<PackageReference Include="Moq" Version="4.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Reference your API project -->
+		<ProjectReference Include="..\..\TaskManagementSystem_AL_Backend_10Pearls\TaskManagementSystem_AL_Backend_10Pearls.csproj" />
+	</ItemGroup>
+
+</Project>

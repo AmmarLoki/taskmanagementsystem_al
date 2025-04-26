@@ -11,9 +11,6 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Models
         [Required]
         public int TaskStatusId { get; set; }
 
-        [Required]
-        public int CreatedById { get; set; }
-
         // Optional, for task assignment.
         public int? AssignedToId { get; set; }
 
