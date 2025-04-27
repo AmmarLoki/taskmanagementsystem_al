@@ -140,7 +140,7 @@
 
 
 // src/components/TaskForm.js
-// src/components/TaskForm.js
+import {jwtDecode} from 'jwt-decode';
 import React, { useState, useEffect } from "react";
 import {
   TextField,
@@ -177,13 +177,32 @@ const TaskForm = ({ onSubmit, initialData = {} }) => {
           }))
         );
 
-        const users = await getUsers();
-        setUserOptions(
-          users.map((user) => ({
-            id: user.userId,
-            email: user.email,
-          }))
-        );
+        const users = await getUsers(); // assume this returns [{ userId, email, roleName }, …]
+        // 2. figure out current user’s role from the JWT
+        const token = localStorage.getItem("authToken");
+        let currentRole = "";
+        if (token) {
+          const decoded = jwtDecode(token);
+          // JWT claim type for role is usually
+          // "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          currentRole =
+            decoded[
+              "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            ] || decoded.roleName;
+        }
+        const isAdmin = currentRole === "Admin";
+
+        // 3. build and possibly filter user list
+        let opts = users.map(u => ({
+          id: u.userId,
+          email: u.email,
+          roleName: u.roleName
+        }));
+        if (!isAdmin) {
+          // non-admins cannot assign to Admins
+          opts = opts.filter(u => u.roleName !== "Admin");
+        }
+        setUserOptions(opts);
       } catch (error) {
         console.error("Error fetching task statuses or users", error);
       }
@@ -258,10 +277,10 @@ const TaskForm = ({ onSubmit, initialData = {} }) => {
             <Select
               value={assignedToId}
               label="Assign To"
-              onChange={(e) => setAssignedToId(e.target.value)}
+              onChange={e => setAssignedToId(e.target.value)}
             >
               <MenuItem value="">None</MenuItem>
-              {userOptions.map((user) => (
+              {userOptions.map(user => (
                 <MenuItem key={user.id} value={user.id}>
                   {user.email}
                 </MenuItem>

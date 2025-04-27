@@ -104,21 +104,21 @@ export default function ProfilePage() {
           <Typography variant="h6">TaskSync</Typography>
         </Toolbar>
         <List sx={{ flexGrow: 1 }}>
-          {isAdmin ? (
+          {isAdmin && (
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/dashboard">
                 <ListItemIcon><DashboardIcon /></ListItemIcon>
                 <ListItemText primary="Dashboard" />
               </ListItemButton>
             </ListItem>
-          ) : (
+          )} 
             <ListItem disablePadding>
               <ListItemButton component={Link} to="/tasks">
                 <ListItemIcon><AssignmentIcon /></ListItemIcon>
                 <ListItemText primary="Tasks" />
               </ListItemButton>
             </ListItem>
-          )}
+          
         </List>
         <List>
           <ListItem disablePadding>
