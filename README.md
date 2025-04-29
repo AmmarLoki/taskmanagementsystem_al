@@ -1,6 +1,6 @@
 # Task Management System
 
-A full-stack application for managing tasks with user authentication, role-based access, and real-time updates via SignalR.
+A full-stack application for managing tasks with user authentication and role-based access.
 
 ---
 
