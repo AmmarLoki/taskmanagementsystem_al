@@ -23,7 +23,7 @@ namespace TaskManagementSystem_AL_Backend_10Pearls.Models
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedOn { get; set; } 
 
         public Role Role { get; set; }
     }
